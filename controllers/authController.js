@@ -28,3 +28,21 @@ export const login = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+export const userInfo = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1]; // Assuming Bearer token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId; // Adjust based on your token payload structure
+
+    const user = await User.findById(userId).select('-password'); // Exclude password from the result
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving user information', error: error.message });
+  }
+};
